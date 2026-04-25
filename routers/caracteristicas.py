@@ -6,8 +6,8 @@ router = APIRouter(prefix = "/characters", tags=["Personajes"])
 
 #crear
 @router.post("/", response_model = Personaje)
-def crear_personaje(characters: crear_personaje):
-    nuevo_personaje = Personaje(id=db.next_id, **characters.dict())
+def Crear_personaje(characters: Crearpers):
+    nuevo_personaje = Personaje(id=db.next_id, **characters.model_dump())
     db.caracteristicas_db[db.next_id] = nuevo_personaje
     db.next_id += 1
     return nuevo_personaje
@@ -29,10 +29,17 @@ def get_character(character_id: int):
 
 #Actualizar
 @router.put("/{character_id}", response_model = Personaje)
-def update_personaje(character_id: int, updated: crear_personaje):
+def update_personaje(character_id: int, updated: Crearpers):
     if character_id not in db.caracteristicas_db:
         raise HTTPException(status_code = 404, detail = "Personaje no encontrado.")
-    update_personaje = Personaje(id: character_id, **updated.dict())
-    db.caracteristicas_db[character_id] = update_personaje
-    return update_personaje
+    update_perso = Personaje(id = character_id, **updated.model_dump())
+    db.caracteristicas_db[character_id] = update_perso
+    return update_perso
 
+#Eliminar
+@router.delete("/{character_id}")
+def delete_personaje(character_id: int):
+    if character_id not in db.caracteristicas_db:
+        raise HTTPException(status_code = 404, detail = "Personaje no encontrado.")
+    del db.caracteristicas_db[character_id]
+    return {"Mensaje": "Personaje eliminado."}
